@@ -4,6 +4,8 @@ namespace MCS;
 use DateTime;
 use Exception;
 use DateTimeZone;
+use Generator;
+use Psr\Http\Message\StreamInterface;
 use MCS\MWSEndPoint;
 use League\Csv\Reader;
 use League\Csv\Writer;
@@ -1115,6 +1117,46 @@ class MWSClient{
     }
 
     /**
+     * Downloads the given report chunk wise and returns a Generator that holds all data. You have to make sure
+     * the given report is actually finished!
+     *
+     * @param string $reportId
+     *
+     * @return Generator|array
+     *
+     * @throws Exception
+     */
+    public function StreamCsvReport(string $reportId): Generator
+    {
+        /** @var StreamInterface $result */
+        $result = $this->request('GetReport', ['ReportId' => $reportId], null, false, true);
+
+        if(!$result->isReadable())
+        {
+            throw new \RuntimeException('Stream containing the report content is not readable');
+        }
+
+        $headers = null;
+        $buffer = '';
+        do {
+            $buffer .= iconv('ISO-8859-1', 'UTF-8//TRANSLIT', $result->read(4096));
+            while(false !== strpos($buffer, "\n"))
+            {
+                list($line, $buffer) = explode("\n", $buffer, 2);
+                $fields = str_getcsv($line, "\t");
+                if($headers === null)
+                {
+                    $headers = $fields;
+                }
+                else
+                {
+                    yield array_combine($headers, $fields);
+                }
+            }
+        } while(!$result->eof());
+    }
+
+    /**
      * Get a report's processing status
      * @param string  $ReportId
      * @return array if the report is found
@@ -1175,7 +1217,7 @@ class MWSClient{
     /**
      * Request MWS
      */
-    private function request($endPoint, array $query = [], $body = null, $raw = false)
+    private function request($endPoint, array $query = [], $body = null, $raw = false, $stream = false)
     {
 
         $endPoint = MWSEndPoint::get($endPoint);
@@ -1261,7 +1303,10 @@ class MWSClient{
                 $requestOptions
             );
 
-
+            if($stream)
+            {
+                return $response->getBody();
+            }
 
             $body = (string) $response->getBody();
 
