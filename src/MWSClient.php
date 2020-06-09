@@ -1337,4 +1337,58 @@ class MWSClient{
     public function setClient(Client $client) {
         $this->client = $client;
     }
+
+    public function registerDestination(string $sqsQueueUrl) {
+        $query = [
+            'MarketplaceId' => $this->config['Marketplace_Id'],
+            'Destination.DeliveryChannel' => 'SQS',
+            'Destination.AttributeList.member.1.Key' => 'sqsQueueUrl',
+            'Destination.AttributeList.member.1.Value' => $sqsQueueUrl,
+        ];
+
+        $response = $this->request('RegisterDestination', $query);
+        return $response;
+    }
+
+    public function createSubscription(string $notificationType, string $sqsQueueUrl)
+    {
+        $query = [
+            'MarketplaceId' => $this->config['Marketplace_Id'],
+            'Subscription.Destination.DeliveryChannel' => 'SQS',
+            'Subscription.Destination.AttributeList.member.1.Key' => 'sqsQueueUrl',
+            'Subscription.Destination.AttributeList.member.1.Value' => $sqsQueueUrl,
+            'Subscription.isEnabled' => 'true',
+            'Subscription.NotificationType' => $notificationType,
+        ];
+
+        $response = $this->request('CreateSubscription', $query);
+        return $response;
+    }
+
+    public function deleteSubscription(string $notificationType, string $sqsQueueUrl)
+    {
+        $query = [
+            'MarketplaceId' => $this->config['Marketplace_Id'],
+            'Destination.DeliveryChannel' => 'SQS',
+            'Destination.AttributeList.member.1.Key' => 'sqsQueueUrl',
+            'Destination.AttributeList.member.1.Value' => $sqsQueueUrl,
+            'NotificationType' => $notificationType,
+        ];
+
+        $response = $this->request('DeleteSubscription', $query);
+        return $response;
+    }
+
+    public function sendTestNotificationToDestination(string $sqsQueueUrl)
+    {
+        $query = [
+            'MarketplaceId' => $this->config['Marketplace_Id'],
+            'Destination.DeliveryChannel' => 'SQS',
+            'Destination.AttributeList.member.1.Key' => 'sqsQueueUrl',
+            'Destination.AttributeList.member.1.Value' => $sqsQueueUrl,
+        ];
+
+        $response = $this->request('SendTestNotificationToDestination', $query);
+        return $response;
+    }
 }

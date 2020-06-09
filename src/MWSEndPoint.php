@@ -6,6 +6,30 @@ use Exception;
 class MWSEndPoint{
 
     public static $endpoints = [
+        'RegisterDestination' => [
+            'method' => 'POST',
+            'action' => 'RegisterDestination',
+            'path' => '/Subscriptions/2013-07-01',
+            'date' => '2013-07-01',
+        ],
+        'CreateSubscription' => [
+            'method' => 'POST',
+            'action' => 'CreateSubscription',
+            'path' => '/Subscriptions/2013-07-01',
+            'date' => '2013-07-01',
+        ],
+        'SendTestNotificationToDestination' => [
+            'method' => 'POST',
+            'action' => 'SendTestNotificationToDestination',
+            'path' => '/Subscriptions/2013-07-01',
+            'date' => '2013-07-01',
+        ],
+        'DeleteSubscription' => [
+            'method' => 'POST',
+            'action' => 'DeleteSubscription',
+            'path' => '/Subscriptions/2013-07-01',
+            'date' => '2013-07-01',
+        ],
         'ListRecommendations' => [
             'method' => 'POST',
             'action' => 'ListRecommendations',
