@@ -252,16 +252,19 @@ class MWSClient{
             return [];
         }
 
-        $array = [];
+        $array = [
+            'found' => [],
+            'not_found' => [],
+        ];
         foreach ($response as $product) {
             if (isset($product['@attributes']['status']) && $product['@attributes']['status'] == 'Success') {
                 if (isset($product['Product']['Offers']['Offer'])) {
-                    $array[$product['@attributes']['SellerSKU']] = $product['Product']['Offers']['Offer'];
+                    $array['found'][$product['@attributes']['SellerSKU']] = $product['Product']['Offers']['Offer'];
                 } else {
-                    $array[$product['@attributes']['SellerSKU']] = [];
+                    $array['found'][$product['@attributes']['SellerSKU']] = [];
                 }
             } else {
-                $array[$product['@attributes']['SellerSKU']] = false;
+                $array['not_found'][$product['@attributes']['SellerSKU']] = $product['@attributes']['SellerSKU'];
             }
         }
         return $array;
